@@ -1,3 +1,3 @@
-# lagom-java.g8
+# hello-lagom
 
-A Lagom Java seed template for sbt
+A Hello World Lagom Java example
