@@ -74,4 +74,18 @@ public class HelloServiceImpl implements HelloService {
             return result;
         };
     }
+
+    @Override
+    public ServiceCall<NotUsed, PSequence<String>> getAllGreetings() {
+        System.out.println("*************************** " + "in getAllGreetings");
+        return req -> {
+            CompletionStage<PSequence<String>> result = db.selectAll("SELECT * FROM greeting")
+                    .thenApply(rows -> {
+                        List<String> followers = rows.stream().map(row -> row.getString("userid") + "-" + row.getString("message")).collect(Collectors.toList());
+                        return TreePVector.from(followers);
+                    });
+            return result;
+        };
+    }
+
 }

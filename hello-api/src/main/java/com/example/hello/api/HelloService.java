@@ -34,13 +34,16 @@ public interface HelloService extends Service {
 
     ServiceCall<NotUsed, PSequence<String>> getGreetings(String userId);
 
+    ServiceCall<NotUsed, PSequence<String>> getAllGreetings();
+
     @Override
     default Descriptor descriptor() {
         // @formatter:off
         return named("hello").withCalls(
                 pathCall("/api/hello/:id", this::hello),
                 pathCall("/api/hello/:id", this::useGreeting),
-                pathCall("/api/hello/:userId/greetings", this::getGreetings)
+                pathCall("/api/hello/:userId/greetings", this::getGreetings),
+                pathCall("/api/hello/all/stuff", this::getAllGreetings)
         ).withAutoAcl(true);
         // @formatter:on
     }

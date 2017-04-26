@@ -43,7 +43,7 @@ public class HelloEventProcessor  extends ReadSideProcessor<HelloEvent> {
                 .setEventHandler(HelloEvent.GreetingMessageChanged.class, this::processGreetingMessageChanged)
                 .build();
     }
-    
+
     @Override
     public PSequence<AggregateEventTag<HelloEvent>> aggregateTags() {
         return TreePVector.singleton(HelloEventTag.INSTANCE);
