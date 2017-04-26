@@ -3,14 +3,15 @@
  */
 package com.example.hello.api;
 
-import static com.lightbend.lagom.javadsl.api.Service.named;
-import static com.lightbend.lagom.javadsl.api.Service.pathCall;
-
 import akka.Done;
 import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import org.pcollections.PSequence;
+
+import static com.lightbend.lagom.javadsl.api.Service.named;
+import static com.lightbend.lagom.javadsl.api.Service.pathCall;
 
 /**
  * The hello service interface.
@@ -20,24 +21,27 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
  */
 public interface HelloService extends Service {
 
-  /**
-   * Example: curl http://localhost:9000/api/hello/Alice
-   */
-  ServiceCall<NotUsed, String> hello(String id);
+    /**
+     * Example: curl http://localhost:9000/api/hello/Alice
+     */
+    ServiceCall<NotUsed, String> hello(String id);
 
-  /**
-   * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
-   * "Hi"}' http://localhost:9000/api/hello/Alice
-   */
-  ServiceCall<GreetingMessage, Done> useGreeting(String id);
+    /**
+     * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
+     * "Hi"}' http://localhost:9000/api/hello/Alice
+     */
+    ServiceCall<GreetingMessage, Done> useGreeting(String id);
 
-  @Override
-  default Descriptor descriptor() {
-    // @formatter:off
-    return named("hello").withCalls(
-        pathCall("/api/hello/:id",  this::hello),
-        pathCall("/api/hello/:id", this::useGreeting)
-      ).withAutoAcl(true);
-    // @formatter:on
-  }
+    ServiceCall<NotUsed, PSequence<String>> getGreetings(String userId);
+
+    @Override
+    default Descriptor descriptor() {
+        // @formatter:off
+        return named("hello").withCalls(
+                pathCall("/api/hello/:id", this::hello),
+                pathCall("/api/hello/:id", this::useGreeting),
+                pathCall("/api/hello/:userId/greetings", this::getGreetings)
+        ).withAutoAcl(true);
+        // @formatter:on
+    }
 }

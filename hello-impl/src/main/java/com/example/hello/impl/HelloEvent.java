@@ -3,14 +3,13 @@
  */
 package com.example.hello.impl;
 
-import javax.annotation.Nullable;
-import lombok.Value;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
+import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
 import com.lightbend.lagom.serialization.Jsonable;
+import lombok.Value;
 
 /**
  * This interface defines all the events that the HelloEntity supports.
@@ -18,20 +17,27 @@ import com.lightbend.lagom.serialization.Jsonable;
  * By convention, the events should be inner classes of the interface, which
  * makes it simple to get a complete picture of what events an entity has.
  */
-public interface HelloEvent extends Jsonable {
+public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
 
-  /**
-   * An event that represents a change in greeting message.
-   */
-  @SuppressWarnings("serial")
-  @Value
-  @JsonDeserialize
-  public final class GreetingMessageChanged implements HelloEvent {
-    public final String message;
-
-    @JsonCreator
-    public GreetingMessageChanged(String message) {
-      this.message = Preconditions.checkNotNull(message, "message");
+    @Override
+    default AggregateEventTag<HelloEvent> aggregateTag() {
+        return HelloEventTag.INSTANCE;
     }
-  }
+
+    /**
+     * An event that represents a change in greeting message.
+     */
+    @SuppressWarnings("serial")
+    @Value
+    @JsonDeserialize
+    public final class GreetingMessageChanged implements HelloEvent {
+        public final String userId;
+        public final String message;
+
+        @JsonCreator
+        public GreetingMessageChanged(String userId, String message) {
+            this.userId = Preconditions.checkNotNull(userId, "userId");
+            this.message = Preconditions.checkNotNull(message, "message");
+        }
+    }
 }
