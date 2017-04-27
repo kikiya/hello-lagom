@@ -39,10 +39,6 @@ public interface HelloService extends Service {
 
     ServiceCall<NotUsed, PSequence<String>> getAllGreetings();
 
-
-    String GREETINGS_TOPIC = "greetings";
-
-    Topic<GreetingMessage> greetingsTopic();
     /**
      * This gets published to Kafka.
      */
@@ -57,7 +53,6 @@ public interface HelloService extends Service {
                 pathCall("/api/hello/:userId/greetings", this::getGreetings),
                 pathCall("/api/hello/all/stuff", this::getAllGreetings)
         ).publishing(
-                topic(GREETINGS_TOPIC, this::greetingsTopic),
                 topic("hello-events", this::helloEvents)
 //                        // Kafka partitions messages, messages within the same partition will
 //                        // be delivered in order, to ensure that all messages for the same user

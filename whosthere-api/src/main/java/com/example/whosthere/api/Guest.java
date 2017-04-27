@@ -18,7 +18,7 @@ public class Guest {
     @JsonCreator
     public Guest(String message, String guest) {
         this.message = Preconditions.checkNotNull(message, "message");
-        this.guest = Preconditions.checkNotNull(message, "guest");
+        this.guest = Preconditions.checkNotNull(guest, "guest");
     }
 
 }

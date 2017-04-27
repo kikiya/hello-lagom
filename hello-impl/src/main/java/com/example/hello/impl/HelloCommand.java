@@ -36,13 +36,11 @@ public interface HelloCommand extends Jsonable {
   @SuppressWarnings("serial")
   @Value
   @JsonDeserialize
-  public final class UseGreetingMessage implements HelloCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
-    public final String id;
+  final class UseGreetingMessage implements HelloCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
     public final String message;
 
     @JsonCreator
-    public UseGreetingMessage(String userId, String message) {
-      this.id = Preconditions.checkNotNull(userId, "id");
+    public UseGreetingMessage(String message) {
       this.message = Preconditions.checkNotNull(message, "message");
     }
   }
@@ -56,16 +54,13 @@ public interface HelloCommand extends Jsonable {
   @SuppressWarnings("serial")
   @Value
   @JsonDeserialize
-  public final class Hello implements HelloCommand, PersistentEntity.ReplyType<String> {
+  final class Hello implements HelloCommand, PersistentEntity.ReplyType<String> {
     public final String name;
-    public final Optional<String> organization;
 
     @JsonCreator
-    public Hello(String name, Optional<String> organization) {
-      System.out.println("******************************** " + name);
-      System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ " + organization);
+    public Hello(String name) {
+      System.out.println("********* name: "+name);
       this.name = Preconditions.checkNotNull(name, "name");
-      this.organization = Preconditions.checkNotNull(organization, "organization");
     }
   }
 

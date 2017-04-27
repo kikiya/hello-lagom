@@ -1,16 +1,13 @@
 package com.example.whosthere.impl;
 
 import akka.Done;
-import akka.NotUsed;
 import akka.stream.javadsl.Flow;
 import com.example.hello.api.GreetingMessage;
 import com.example.hello.api.HelloEvent;
 import com.example.hello.api.HelloService;
-import com.example.whosthere.api.WhosThereService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -25,16 +22,6 @@ public class WhosThereSubscriber {
     public WhosThereSubscriber(HelloService helloService, WhosThereRepository repository) {
 
         System.out.println("****************** i am subscribing");
-        //#subscribe-to-topic
-        helloService.greetingsTopic()
-                .subscribe() // <-- you get back a Subscriber instance
-                .atLeastOnce(Flow.fromFunction((GreetingMessage message) -> {
-                    repository.addGuest(message.id, message.message);
-//                    repository.addGuest(message.id, message.message);
-                    return Done.getInstance();
-                }));
-        //#subscribe-to-topic
-//        return name -> completedFuture(Done.getInstance());
 
         // Create a subscriber
         helloService.helloEvents().subscribe()
@@ -46,7 +33,8 @@ public class WhosThereSubscriber {
                             if (event instanceof HelloEvent.GreetingMessageChanged) {
                                 HelloEvent.GreetingMessageChanged messageChanged = (HelloEvent.GreetingMessageChanged) event;
                                 // Update the message
-                                return repository.addGuest(messageChanged.getName(), messageChanged.getMessage());
+                                System.out.println("****************** the event to add looks like: "+messageChanged.toString());
+                                return repository.addGuest(messageChanged.name, messageChanged.message);
 
                             } else {
                                 // Ignore all other events

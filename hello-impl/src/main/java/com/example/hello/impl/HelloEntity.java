@@ -59,7 +59,7 @@ public class HelloEntity extends PersistentEntity<HelloCommand, HelloEvent, Hell
     b.setCommandHandler(UseGreetingMessage.class, (cmd, ctx) ->
     // In response to this command, we want to first persist it as a
     // GreetingMessageChanged event
-    ctx.thenPersist(new GreetingMessageChanged(cmd.id, cmd.message),
+    ctx.thenPersist(new GreetingMessageChanged(entityId(), cmd.message),
         // Then once the event is successfully persisted, we respond with done.
         evt -> ctx.reply(Done.getInstance())));
 
@@ -69,7 +69,7 @@ public class HelloEntity extends PersistentEntity<HelloCommand, HelloEvent, Hell
     b.setEventHandler(GreetingMessageChanged.class,
         // We simply update the current state to use the greeting message from
         // the event.
-        evt -> new HelloState(evt.getName(), evt.message, LocalDateTime.now().toString()));
+        evt -> new HelloState(evt.name, evt.message, LocalDateTime.now().toString()));
 
     /*
      * Command handler for the Hello command.

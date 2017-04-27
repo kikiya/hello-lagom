@@ -44,7 +44,7 @@ public class WhosThereRepository {
     }
 
     public CompletionStage<Done> addGuest(String guest, String message) {
-        System.out.println("************************ i am adding a guest");
+        System.out.println("************************ i am adding a guest: "+ guest + " with message: "+message);
         return session().thenCompose(session ->
                 session.executeWrite("INSERT INTO lagom_guests (guest, message) VALUES (?, ?)", guest, message)
         );

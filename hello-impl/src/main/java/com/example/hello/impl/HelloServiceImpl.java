@@ -23,7 +23,6 @@ import org.pcollections.TreePVector;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -50,8 +49,7 @@ public class HelloServiceImpl implements HelloService {
             // Look up the hello world entity for the given ID.
             PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloEntity.class, id);
             // Ask the entity the Hello command.
-            return ref.ask(new Hello(id, Optional.empty()));
-            //return CompletableFuture.completedFuture("Hello someone");
+            return ref.ask(new Hello(id));
         };
     }
 
@@ -62,7 +60,7 @@ public class HelloServiceImpl implements HelloService {
             // Look up the hello world entity for the given ID.
             PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloEntity.class, id);
             // Tell the entity to use the greeting message specified.
-            return ref.ask(new UseGreetingMessage(id, request.message));
+            return ref.ask(new UseGreetingMessage(request.message));
         };
 
     }
@@ -93,20 +91,11 @@ public class HelloServiceImpl implements HelloService {
         };
     }
 
-    @Override
-    public Topic<GreetingMessage> greetingsTopic() {
-        return TopicProducer.singleStreamWithOffset(offset -> {
-            return persistentEntityRegistry
-                    .eventStream(HelloEventTag.TAG, offset)
-                    .map(this::convertEvent);
-        });
-    }
-
     private Pair<GreetingMessage, Offset> convertEvent(Pair<HelloEvent, Offset> pair) {
         return new Pair<>(new GreetingMessage(((HelloEvent.GreetingMessageChanged)pair.first()).name, ((HelloEvent.GreetingMessageChanged)pair.first()).message), pair.second());
     }
 
-//    @Override
+    @Override
     public Topic<com.example.hello.api.HelloEvent> helloEvents() {
         // We want to publish all the shards of the hello event
         System.out.println("*********************** in helloEvents in impl");

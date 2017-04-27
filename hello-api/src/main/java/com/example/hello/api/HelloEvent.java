@@ -1,8 +1,8 @@
-/*
- * Copyright (C) 2016 Lightbend Inc. <http://www.lightbend.com>
- */
 package com.example.hello.api;
 
+/**
+ * Created by kiki on 4/27/17.
+ */
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -15,28 +15,26 @@ import lombok.Value;
 })
 public interface HelloEvent {
 
-    String getName();
-    String getMessage();
+        String getName();
 
-    @Value
-    final class GreetingMessageChanged implements HelloEvent {
-        public final String name;
-        public final String message;
+@Value
+final class GreetingMessageChanged implements HelloEvent {
 
-        @JsonCreator
-        public GreetingMessageChanged(String name, String message) {
-            this.name = Preconditions.checkNotNull(name, "name");
-            this.message = Preconditions.checkNotNull(message, "message");
+public final String name;
+public final String message;
+
+@JsonCreator
+public GreetingMessageChanged(String name, String message) {
+        this.name = Preconditions.checkNotNull(name, "name");
+        this.message = Preconditions.checkNotNull(message, "message");
         }
 
-        @Override
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public String getMessage() {
-            return this.message;
-        }
+    @Override
+    public String getName() {
+        return this.name;
     }
 }
+
+
+}
+
