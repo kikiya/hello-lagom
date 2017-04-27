@@ -67,7 +67,7 @@ public class HelloEventProcessor  extends ReadSideProcessor<HelloEvent> {
 
     private CompletionStage<List<BoundStatement>> processGreetingMessageChanged(HelloEvent.GreetingMessageChanged event) {
         BoundStatement bindWriteGreetings = writeGreetings.bind();
-        bindWriteGreetings.setString("userId", event.id);
+        bindWriteGreetings.setString("userId", event.name);
         bindWriteGreetings.setString("message", event.message);
         return completedStatement(bindWriteGreetings);
     }

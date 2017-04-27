@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Preconditions;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
+import com.lightbend.lagom.javadsl.persistence.AggregateEventShards;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
 import com.lightbend.lagom.serialization.Jsonable;
@@ -20,18 +21,8 @@ import lombok.Value;
  */
 public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
 
-    public String getName();
+    AggregateEventShards<HelloEvent> TAG = AggregateEventTag.sharded(HelloEvent.class, 4);
 
-    public String getMessage();
-
-    @Override
-    default AggregateEventTag<HelloEvent> aggregateTag() {
-        return HelloEventTag.TAG;
-    }
-
-//    default AggregateEventTagger<HelloEvent> aggregateTag() {
-//        return HelloEventTag.INSTANCE;
-//    }
 
     /**
      * An event that represents a change in greeting message.
@@ -39,24 +30,21 @@ public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
     @SuppressWarnings("serial")
     @Value
     @JsonDeserialize
-    public final class GreetingMessageChanged implements HelloEvent {
-        public final String id;
+    final class GreetingMessageChanged implements HelloEvent {
+        public final String name;
         public final String message;
 
         @JsonCreator
-        public GreetingMessageChanged(String userId, String message) {
-            this.id = Preconditions.checkNotNull(userId, "id");
+        public GreetingMessageChanged(String name, String message) {
+            this.name = Preconditions.checkNotNull(name, "name");
             this.message = Preconditions.checkNotNull(message, "message");
         }
 
-        @Override
-        public String getName() {
-            return this.id;
-        }
 
-        @Override
-        public String getMessage() {
-            return this.message;
-        }
+    }
+
+    @Override
+    default AggregateEventTagger<HelloEvent> aggregateTag() {
+        return TAG;
     }
 }

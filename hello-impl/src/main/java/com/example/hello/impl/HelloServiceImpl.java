@@ -103,7 +103,7 @@ public class HelloServiceImpl implements HelloService {
     }
 
     private Pair<GreetingMessage, Offset> convertEvent(Pair<HelloEvent, Offset> pair) {
-        return new Pair<>(new GreetingMessage(pair.first().getName(), pair.first().getMessage()), pair.second());
+        return new Pair<>(new GreetingMessage(((HelloEvent.GreetingMessageChanged)pair.first()).name, ((HelloEvent.GreetingMessageChanged)pair.first()).message), pair.second());
     }
 
 //    @Override
