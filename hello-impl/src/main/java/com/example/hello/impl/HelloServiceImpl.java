@@ -107,35 +107,35 @@ public class HelloServiceImpl implements HelloService {
     }
 
 //    @Override
-//    public Topic<com.example.hello.api.HelloEvent> helloEvents() {
-//        // We want to publish all the shards of the hello event
-//        System.out.println("*********************** in helloEvents in impl");
-//        return TopicProducer.taggedStreamWithOffset(HelloEventTag.INSTANCE.allTags(), (tag, offset) ->
-//
-//                // Load the event stream for the passed in shard tag
-//                persistentEntityRegistry.eventStream(tag, offset).map(eventAndOffset -> {
-//
-//                    System.out.println("********************** i am publishing");
-//
-//                    // Now we want to convert from the persisted event to the published event.
-//                    // Although these two events are currently identical, in future they may
-//                    // change and need to evolve separately, by separating them now we save
-//                    // a lot of potential trouble in future.
-//                    com.example.hello.api.HelloEvent eventToPublish;
-//
-//                    if (eventAndOffset.first() instanceof HelloEvent.GreetingMessageChanged) {
-//                        HelloEvent.GreetingMessageChanged messageChanged = (HelloEvent.GreetingMessageChanged) eventAndOffset.first();
-//                        eventToPublish = new com.example.hello.api.HelloEvent.GreetingMessageChanged(
-//                                messageChanged.getName(), messageChanged.getMessage()
-//                        );
-//                    } else {
-//                        throw new IllegalArgumentException("Unknown event: " + eventAndOffset.first());
-//                    }
-//
-//                    // We return a pair of the translated event, and its offset, so that
-//                    // Lagom can track which offsets have been published.
-//                    return Pair.create(eventToPublish, eventAndOffset.second());
-//                })
-//        );
-//    }
+    public Topic<com.example.hello.api.HelloEvent> helloEvents() {
+        // We want to publish all the shards of the hello event
+        System.out.println("*********************** in helloEvents in impl");
+        return TopicProducer.taggedStreamWithOffset(HelloEventTag.INSTANCE.allTags(), (tag, offset) ->
+
+                // Load the event stream for the passed in shard tag
+                persistentEntityRegistry.eventStream(tag, offset).map(eventAndOffset -> {
+
+                    System.out.println("********************** i am publishing");
+
+                    // Now we want to convert from the persisted event to the published event.
+                    // Although these two events are currently identical, in future they may
+                    // change and need to evolve separately, by separating them now we save
+                    // a lot of potential trouble in future.
+                    com.example.hello.api.HelloEvent eventToPublish;
+
+                    if (eventAndOffset.first() instanceof HelloEvent.GreetingMessageChanged) {
+                        HelloEvent.GreetingMessageChanged messageChanged = (HelloEvent.GreetingMessageChanged) eventAndOffset.first();
+                        eventToPublish = new com.example.hello.api.HelloEvent.GreetingMessageChanged(
+                                messageChanged.name, messageChanged.message
+                        );
+                    } else {
+                        throw new IllegalArgumentException("Unknown event: " + eventAndOffset.first());
+                    }
+
+                    // We return a pair of the translated event, and its offset, so that
+                    // Lagom can track which offsets have been published.
+                    return Pair.create(eventToPublish, eventAndOffset.second());
+                })
+        );
+    }
 }
