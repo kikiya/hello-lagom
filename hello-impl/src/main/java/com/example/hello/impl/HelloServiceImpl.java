@@ -60,7 +60,7 @@ public class HelloServiceImpl implements HelloService {
             // Look up the hello world entity for the given ID.
             PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloEntity.class, id);
             // Tell the entity to use the greeting message specified.
-            return ref.ask(new UseGreetingMessage(request.message));
+            return ref.ask(new UseGreetingMessage(request.id, request.message));
         };
 
     }
@@ -69,7 +69,7 @@ public class HelloServiceImpl implements HelloService {
     public ServiceCall<NotUsed, PSequence<String>> getGreetings(String userId) {
         System.out.println("*************************** " + "in getGreetings");
         return req -> {
-            CompletionStage<PSequence<String>> result = db.selectAll("SELECT * FROM greeting WHERE userId = ?", userId)
+            CompletionStage<PSequence<String>> result = db.selectAll("SELECT * FROM greeting WHERE id = ?", userId)
                     .thenApply(rows -> {
                         List<String> followers = rows.stream().map(row -> row.getString("message")).collect(Collectors.toList());
                         return TreePVector.from(followers);
@@ -84,7 +84,7 @@ public class HelloServiceImpl implements HelloService {
         return req -> {
             CompletionStage<PSequence<String>> result = db.selectAll("SELECT * FROM greeting")
                     .thenApply(rows -> {
-                        List<String> followers = rows.stream().map(row -> row.getString("userid") + "-" + row.getString("message")).collect(Collectors.toList());
+                        List<String> followers = rows.stream().map(row -> row.getString("id") + "-" + row.getString("message")).collect(Collectors.toList());
                         return TreePVector.from(followers);
                     });
             return result;
@@ -92,14 +92,25 @@ public class HelloServiceImpl implements HelloService {
     }
 
     private Pair<GreetingMessage, Offset> convertEvent(Pair<HelloEvent, Offset> pair) {
-        return new Pair<>(new GreetingMessage(((HelloEvent.GreetingMessageChanged)pair.first()).name, ((HelloEvent.GreetingMessageChanged)pair.first()).message), pair.second());
+        return new Pair<>(new GreetingMessage(
+                ((HelloEvent.GreetingMessageChanged)pair.first()).id,
+                ((HelloEvent.GreetingMessageChanged)pair.first()).message), pair.second());
+    }
+
+    @Override
+    public Topic<GreetingMessage> greetingsTopic() {
+        return TopicProducer.singleStreamWithOffset(offset -> {
+            return persistentEntityRegistry
+                    .eventStream(HelloEvent.TAG, offset)
+                    .map(this::convertEvent);
+        });
     }
 
     @Override
     public Topic<com.example.hello.api.HelloEvent> helloEvents() {
         // We want to publish all the shards of the hello event
         System.out.println("*********************** in helloEvents in impl");
-        return TopicProducer.taggedStreamWithOffset(HelloEventTag.INSTANCE.allTags(), (tag, offset) ->
+        return TopicProducer.taggedStreamWithOffset(HelloEvent.SHARD_TAG.allTags(), (tag, offset) ->
 
                 // Load the event stream for the passed in shard tag
                 persistentEntityRegistry.eventStream(tag, offset).map(eventAndOffset -> {
@@ -115,7 +126,7 @@ public class HelloServiceImpl implements HelloService {
                     if (eventAndOffset.first() instanceof HelloEvent.GreetingMessageChanged) {
                         HelloEvent.GreetingMessageChanged messageChanged = (HelloEvent.GreetingMessageChanged) eventAndOffset.first();
                         eventToPublish = new com.example.hello.api.HelloEvent.GreetingMessageChanged(
-                                messageChanged.name, messageChanged.message
+                                messageChanged.id, messageChanged.message
                         );
                     } else {
                         throw new IllegalArgumentException("Unknown event: " + eventAndOffset.first());

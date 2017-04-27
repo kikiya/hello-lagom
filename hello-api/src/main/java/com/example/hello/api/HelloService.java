@@ -44,6 +44,8 @@ public interface HelloService extends Service {
      */
     Topic<HelloEvent> helloEvents();
 
+    Topic<GreetingMessage> greetingsTopic();
+
     @Override
     default Descriptor descriptor() {
         // @formatter:off
@@ -52,15 +54,18 @@ public interface HelloService extends Service {
                 pathCall("/api/hello/:id", this::useGreeting),
                 pathCall("/api/hello/:userId/greetings", this::getGreetings),
                 pathCall("/api/hello/all/stuff", this::getAllGreetings)
-        ).publishing(
-                topic("hello-events", this::helloEvents)
-//                        // Kafka partitions messages, messages within the same partition will
-//                        // be delivered in order, to ensure that all messages for the same user
-//                        // go to the same partition (and hence are delivered in order with respect
-//                        // to that user), we configure a partition key strategy that extracts the
-//                        // name as the partition key.
-                        .withProperty(KafkaProperties.partitionKeyStrategy(), HelloEvent::getName)
-                ).withAutoAcl(true);
+        )
+                .publishing(
+                topic("hello-events", this::greetingsTopic)
+//                topic("hello-events", this::helloEvents)
+                        // Kafka partitions messages, messages within the same partition will
+                        // be delivered in order, to ensure that all messages for the same user
+                        // go to the same partition (and hence are delivered in order with respect
+                        // to that user), we configure a partition key strategy that extracts the
+                        // name as the partition key.
+//                        .withProperty(KafkaProperties.partitionKeyStrategy(), HelloEvent::getId)
+                )
+                .withAutoAcl(true);
         // @formatter:on
 
     }

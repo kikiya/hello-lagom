@@ -37,6 +37,7 @@ public class HelloEventProcessor  extends ReadSideProcessor<HelloEvent> {
 
     @Override
     public ReadSideHandler<HelloEvent> buildHandler() {
+        System.out.println("*********************** in ReadSideHandler buildHandler");
         return readSide.<HelloEvent>builder("hello_offset")
                 .setGlobalPrepare(this::prepareCreateTables)
                 .setPrepare((ignored) -> prepareWriteGreetings())
@@ -46,20 +47,23 @@ public class HelloEventProcessor  extends ReadSideProcessor<HelloEvent> {
 
     @Override
     public PSequence<AggregateEventTag<HelloEvent>> aggregateTags() {
-        return TreePVector.singleton(HelloEventTag.TAG);
+        return TreePVector.singleton(HelloEvent.TAG);
     }
 
     private CompletionStage<Done> prepareCreateTables() {
         // @formatter:off
+        System.out.println("******************* creating readside table");
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS greeting ("
-                        + "userId text, message text, "
-                        + "PRIMARY KEY (userId, message))");
+                        + "id text, message text, "
+                        + "PRIMARY KEY (id, message))");
         // @formatter:on
     }
 
     private CompletionStage<Done> prepareWriteGreetings() {
-        return session.prepare("INSERT INTO greeting (userId, message) VALUES (?, ?)").thenApply(ps -> {
+        System.out.println("********************* persisting readside");
+        return session.prepare("INSERT INTO greeting (id, message) VALUES (?, ?)").thenApply(ps -> {
+            System.out.println("******************* ps " + ps.toString());
             setWriteGreetings(ps);
             return Done.getInstance();
         });
@@ -68,7 +72,7 @@ public class HelloEventProcessor  extends ReadSideProcessor<HelloEvent> {
     private CompletionStage<List<BoundStatement>> processGreetingMessageChanged(HelloEvent.GreetingMessageChanged event) {
         System.out.println("******************** in processGreetingMessageChanged: "+ event);
         BoundStatement bindWriteGreetings = writeGreetings.bind();
-        bindWriteGreetings.setString("userId", event.name);
+        bindWriteGreetings.setString("id", event.id);
         bindWriteGreetings.setString("message", event.message);
         return completedStatement(bindWriteGreetings);
     }

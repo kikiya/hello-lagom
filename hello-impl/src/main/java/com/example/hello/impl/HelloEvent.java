@@ -21,8 +21,12 @@ import lombok.Value;
  */
 public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
 
-    AggregateEventShards<HelloEvent> TAG = AggregateEventTag.sharded(HelloEvent.class, 4);
+//    AggregateEventShards<HelloEvent> TAG = AggregateEventTag.sharded(HelloEvent.class, 4);
 
+    public static final AggregateEventTag<HelloEvent> TAG =
+            AggregateEventTag.of(HelloEvent.class);
+
+    public static final AggregateEventShards<HelloEvent> SHARD_TAG = AggregateEventTag.sharded(HelloEvent.class, 4);
 
     /**
      * An event that represents a change in greeting message.
@@ -31,12 +35,12 @@ public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
     @Value
     @JsonDeserialize
     final class GreetingMessageChanged implements HelloEvent {
-        public final String name;
+        public final String id;
         public final String message;
 
         @JsonCreator
-        public GreetingMessageChanged(String name, String message) {
-            this.name = Preconditions.checkNotNull(name, "name");
+        public GreetingMessageChanged(String id, String message) {
+            this.id = Preconditions.checkNotNull(id, "id");
             this.message = Preconditions.checkNotNull(message, "message");
         }
 
@@ -44,7 +48,11 @@ public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
     }
 
     @Override
-    default AggregateEventTagger<HelloEvent> aggregateTag() {
+    default AggregateEventTag<HelloEvent> aggregateTag() {
         return TAG;
     }
+//    @Override
+//    default AggregateEventTagger<HelloEvent> aggregateTag() {
+//        return TAG;
+//    }
 }
