@@ -37,12 +37,12 @@ public interface HelloCommand extends Jsonable {
   @Value
   @JsonDeserialize
   public final class UseGreetingMessage implements HelloCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
-    public final String userId;
+    public final String id;
     public final String message;
 
     @JsonCreator
     public UseGreetingMessage(String userId, String message) {
-      this.userId = Preconditions.checkNotNull(userId, "userId");
+      this.id = Preconditions.checkNotNull(userId, "id");
       this.message = Preconditions.checkNotNull(message, "message");
     }
   }

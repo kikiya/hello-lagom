@@ -46,7 +46,7 @@ public class HelloEventProcessor  extends ReadSideProcessor<HelloEvent> {
 
     @Override
     public PSequence<AggregateEventTag<HelloEvent>> aggregateTags() {
-        return TreePVector.singleton(HelloEventTag.INSTANCE);
+        return TreePVector.singleton(HelloEventTag.TAG);
     }
 
     private CompletionStage<Done> prepareCreateTables() {
@@ -67,7 +67,7 @@ public class HelloEventProcessor  extends ReadSideProcessor<HelloEvent> {
 
     private CompletionStage<List<BoundStatement>> processGreetingMessageChanged(HelloEvent.GreetingMessageChanged event) {
         BoundStatement bindWriteGreetings = writeGreetings.bind();
-        bindWriteGreetings.setString("userId", event.userId);
+        bindWriteGreetings.setString("userId", event.id);
         bindWriteGreetings.setString("message", event.message);
         return completedStatement(bindWriteGreetings);
     }

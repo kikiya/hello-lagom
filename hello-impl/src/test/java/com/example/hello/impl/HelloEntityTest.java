@@ -43,10 +43,10 @@ public class HelloEntityTest {
     assertEquals("Hello, Alice!", outcome1.getReplies().get(0));
     assertEquals(Collections.emptyList(), outcome1.issues());
 
-    Outcome<HelloEvent, HelloState> outcome2 = driver.run(new UseGreetingMessage("Hi"),
+    Outcome<HelloEvent, HelloState> outcome2 = driver.run(new UseGreetingMessage("abc","Hi"),
         new Hello("Bob", Optional.empty()));
     assertEquals(1, outcome2.events().size());
-    assertEquals(new GreetingMessageChanged("Hi"), outcome2.events().get(0));
+    assertEquals(new GreetingMessageChanged("abc","Hi"), outcome2.events().get(0));
     assertEquals("Hi", outcome2.state().message);
     assertEquals(Done.getInstance(), outcome2.getReplies().get(0));
     assertEquals("Hi, Bob!", outcome2.getReplies().get(1));
