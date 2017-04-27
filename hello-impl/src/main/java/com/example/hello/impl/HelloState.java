@@ -20,11 +20,13 @@ import com.lightbend.lagom.serialization.CompressedJsonable;
 @JsonDeserialize
 public final class HelloState implements CompressedJsonable {
 
+  public final String id;
   public final String message;
   public final String timestamp;
 
   @JsonCreator
-  public HelloState(String message, String timestamp) {
+  public HelloState(String id, String message, String timestamp) {
+    this.id = Preconditions.checkNotNull(id, "id");
     this.message = Preconditions.checkNotNull(message, "message");
     this.timestamp = Preconditions.checkNotNull(timestamp, "timestamp");
   }

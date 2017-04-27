@@ -5,11 +5,15 @@ package com.example.hello.impl;
 
 import akka.Done;
 import akka.NotUsed;
+import akka.japi.Pair;
 import com.example.hello.api.GreetingMessage;
 import com.example.hello.api.HelloService;
 import com.example.hello.impl.HelloCommand.Hello;
 import com.example.hello.impl.HelloCommand.UseGreetingMessage;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.broker.Topic;
+import com.lightbend.lagom.javadsl.broker.TopicProducer;
+import com.lightbend.lagom.javadsl.persistence.Offset;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRef;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.ReadSide;
@@ -53,6 +57,7 @@ public class HelloServiceImpl implements HelloService {
 
     @Override
     public ServiceCall<GreetingMessage, Done> useGreeting(String id) {
+        System.out.println("************** useGreeting ID: " + id);
         return request -> {
             // Look up the hello world entity for the given ID.
             PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloEntity.class, id);
@@ -88,4 +93,49 @@ public class HelloServiceImpl implements HelloService {
         };
     }
 
+    @Override
+    public Topic<GreetingMessage> greetingsTopic() {
+        return TopicProducer.singleStreamWithOffset(offset -> {
+            return persistentEntityRegistry
+                    .eventStream(HelloEventTag.TAG, offset)
+                    .map(this::convertEvent);
+        });
+    }
+
+    private Pair<GreetingMessage, Offset> convertEvent(Pair<HelloEvent, Offset> pair) {
+        return new Pair<>(new GreetingMessage(pair.first().getName(), pair.first().getMessage()), pair.second());
+    }
+
+//    @Override
+//    public Topic<com.example.hello.api.HelloEvent> helloEvents() {
+//        // We want to publish all the shards of the hello event
+//        System.out.println("*********************** in helloEvents in impl");
+//        return TopicProducer.taggedStreamWithOffset(HelloEventTag.INSTANCE.allTags(), (tag, offset) ->
+//
+//                // Load the event stream for the passed in shard tag
+//                persistentEntityRegistry.eventStream(tag, offset).map(eventAndOffset -> {
+//
+//                    System.out.println("********************** i am publishing");
+//
+//                    // Now we want to convert from the persisted event to the published event.
+//                    // Although these two events are currently identical, in future they may
+//                    // change and need to evolve separately, by separating them now we save
+//                    // a lot of potential trouble in future.
+//                    com.example.hello.api.HelloEvent eventToPublish;
+//
+//                    if (eventAndOffset.first() instanceof HelloEvent.GreetingMessageChanged) {
+//                        HelloEvent.GreetingMessageChanged messageChanged = (HelloEvent.GreetingMessageChanged) eventAndOffset.first();
+//                        eventToPublish = new com.example.hello.api.HelloEvent.GreetingMessageChanged(
+//                                messageChanged.getName(), messageChanged.getMessage()
+//                        );
+//                    } else {
+//                        throw new IllegalArgumentException("Unknown event: " + eventAndOffset.first());
+//                    }
+//
+//                    // We return a pair of the translated event, and its offset, so that
+//                    // Lagom can track which offsets have been published.
+//                    return Pair.create(eventToPublish, eventAndOffset.second());
+//                })
+//        );
+//    }
 }

@@ -12,10 +12,13 @@ import com.google.common.base.Preconditions;
 @JsonDeserialize
 public final class GreetingMessage {
 
+  public final String id;
   public final String message;
 
   @JsonCreator
-  public GreetingMessage(String message) {
+  public GreetingMessage(String id, String message) {
+//    this.id = Preconditions.checkNotNull(id, "id");
+    this.id = id;
     this.message = Preconditions.checkNotNull(message, "message");
   }
 }

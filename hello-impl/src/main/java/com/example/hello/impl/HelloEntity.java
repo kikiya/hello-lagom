@@ -51,7 +51,7 @@ public class HelloEntity extends PersistentEntity<HelloCommand, HelloEvent, Hell
      * Otherwise, the default state is to use the Hello greeting.
      */
     BehaviorBuilder b = newBehaviorBuilder(
-        snapshotState.orElse(new HelloState("Hello", LocalDateTime.now().toString())));
+        snapshotState.orElse(new HelloState("0","Hello", LocalDateTime.now().toString())));
 
     /*
      * Command handler for the UseGreetingMessage command.
@@ -59,7 +59,7 @@ public class HelloEntity extends PersistentEntity<HelloCommand, HelloEvent, Hell
     b.setCommandHandler(UseGreetingMessage.class, (cmd, ctx) ->
     // In response to this command, we want to first persist it as a
     // GreetingMessageChanged event
-    ctx.thenPersist(new GreetingMessageChanged(cmd.userId, cmd.message),
+    ctx.thenPersist(new GreetingMessageChanged(cmd.id, cmd.message),
         // Then once the event is successfully persisted, we respond with done.
         evt -> ctx.reply(Done.getInstance())));
 
@@ -69,7 +69,7 @@ public class HelloEntity extends PersistentEntity<HelloCommand, HelloEvent, Hell
     b.setEventHandler(GreetingMessageChanged.class,
         // We simply update the current state to use the greeting message from
         // the event.
-        evt -> new HelloState(evt.message, LocalDateTime.now().toString()));
+        evt -> new HelloState(evt.getName(), evt.message, LocalDateTime.now().toString()));
 
     /*
      * Command handler for the Hello command.

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Preconditions;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
+import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
 import com.lightbend.lagom.serialization.Jsonable;
 import lombok.Value;
 
@@ -19,10 +20,18 @@ import lombok.Value;
  */
 public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
 
+    public String getName();
+
+    public String getMessage();
+
     @Override
     default AggregateEventTag<HelloEvent> aggregateTag() {
-        return HelloEventTag.INSTANCE;
+        return HelloEventTag.TAG;
     }
+
+//    default AggregateEventTagger<HelloEvent> aggregateTag() {
+//        return HelloEventTag.INSTANCE;
+//    }
 
     /**
      * An event that represents a change in greeting message.
@@ -31,13 +40,23 @@ public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
     @Value
     @JsonDeserialize
     public final class GreetingMessageChanged implements HelloEvent {
-        public final String userId;
+        public final String id;
         public final String message;
 
         @JsonCreator
         public GreetingMessageChanged(String userId, String message) {
-            this.userId = Preconditions.checkNotNull(userId, "userId");
+            this.id = Preconditions.checkNotNull(userId, "id");
             this.message = Preconditions.checkNotNull(message, "message");
+        }
+
+        @Override
+        public String getName() {
+            return this.id;
+        }
+
+        @Override
+        public String getMessage() {
+            return this.message;
         }
     }
 }

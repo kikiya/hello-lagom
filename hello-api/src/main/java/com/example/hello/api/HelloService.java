@@ -8,10 +8,13 @@ import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.broker.Topic;
+import com.lightbend.lagom.javadsl.api.broker.kafka.KafkaProperties;
 import org.pcollections.PSequence;
 
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.pathCall;
+import static com.lightbend.lagom.javadsl.api.Service.topic;
 
 /**
  * The hello service interface.
@@ -36,6 +39,15 @@ public interface HelloService extends Service {
 
     ServiceCall<NotUsed, PSequence<String>> getAllGreetings();
 
+
+    String GREETINGS_TOPIC = "greetings";
+
+    Topic<GreetingMessage> greetingsTopic();
+    /**
+     * This gets published to Kafka.
+     */
+//    Topic<HelloEvent> helloEvents();
+
     @Override
     default Descriptor descriptor() {
         // @formatter:off
@@ -44,7 +56,29 @@ public interface HelloService extends Service {
                 pathCall("/api/hello/:id", this::useGreeting),
                 pathCall("/api/hello/:userId/greetings", this::getGreetings),
                 pathCall("/api/hello/all/stuff", this::getAllGreetings)
-        ).withAutoAcl(true);
+        ).publishing(
+                topic(GREETINGS_TOPIC, this::greetingsTopic)).withAutoAcl(true);
+//        ).publishing(
+//                topic("hello-events", this::helloEvents)
+//                        // Kafka partitions messages, messages within the same partition will
+//                        // be delivered in order, to ensure that all messages for the same user
+//                        // go to the same partition (and hence are delivered in order with respect
+//                        // to that user), we configure a partition key strategy that extracts the
+//                        // name as the partition key.
+////                        .withProperty(KafkaProperties.partitionKeyStrategy(), HelloEvent::getName)
+//        ).withAutoAcl(true);
         // @formatter:on
     }
+
+//    @Override
+//    default Descriptor descriptor() {
+//        // @formatter:off
+//        return named("hello").withCalls(
+//                pathCall("/api/hello/:id", this::hello),
+//                pathCall("/api/hello/:id", this::useGreeting),
+//                pathCall("/api/hello/:userId/greetings", this::getGreetings),
+//                pathCall("/api/hello/all/stuff", this::getAllGreetings)
+//        ).withAutoAcl(true);
+//        // @formatter:on
+//    }
 }
