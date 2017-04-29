@@ -51,6 +51,7 @@ public interface HelloEvent extends AggregateEvent<HelloEvent>, Jsonable {
     default AggregateEventTag<HelloEvent> aggregateTag() {
         return TAG;
     }
+
 //    @Override
 //    default AggregateEventTagger<HelloEvent> aggregateTag() {
 //        return TAG;

@@ -17,8 +17,7 @@ public final class GreetingMessage {
 
   @JsonCreator
   public GreetingMessage(String id, String message) {
-//    this.id = Preconditions.checkNotNull(id, "id");
-    this.id = id;
+    this.id = Preconditions.checkNotNull(id, "id");
     this.message = Preconditions.checkNotNull(message, "message");
   }
 }

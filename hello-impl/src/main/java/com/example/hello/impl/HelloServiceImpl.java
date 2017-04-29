@@ -55,7 +55,6 @@ public class HelloServiceImpl implements HelloService {
 
     @Override
     public ServiceCall<GreetingMessage, Done> useGreeting(String id) {
-        System.out.println("************** useGreeting ID: " + id);
         return request -> {
             // Look up the hello world entity for the given ID.
             PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloEntity.class, id);
@@ -67,7 +66,6 @@ public class HelloServiceImpl implements HelloService {
 
     @Override
     public ServiceCall<NotUsed, PSequence<String>> getGreetings(String userId) {
-        System.out.println("*************************** " + "in getGreetings");
         return req -> {
             CompletionStage<PSequence<String>> result = db.selectAll("SELECT * FROM greeting WHERE id = ?", userId)
                     .thenApply(rows -> {
@@ -80,7 +78,6 @@ public class HelloServiceImpl implements HelloService {
 
     @Override
     public ServiceCall<NotUsed, PSequence<String>> getAllGreetings() {
-        System.out.println("*************************** " + "in getAllGreetings");
         return req -> {
             CompletionStage<PSequence<String>> result = db.selectAll("SELECT * FROM greeting")
                     .thenApply(rows -> {
@@ -109,13 +106,10 @@ public class HelloServiceImpl implements HelloService {
     @Override
     public Topic<com.example.hello.api.HelloEvent> helloEvents() {
         // We want to publish all the shards of the hello event
-        System.out.println("*********************** in helloEvents in impl");
         return TopicProducer.taggedStreamWithOffset(HelloEvent.SHARD_TAG.allTags(), (tag, offset) ->
 
                 // Load the event stream for the passed in shard tag
                 persistentEntityRegistry.eventStream(tag, offset).map(eventAndOffset -> {
-
-                    System.out.println("********************** i am publishing");
 
                     // Now we want to convert from the persisted event to the published event.
                     // Although these two events are currently identical, in future they may

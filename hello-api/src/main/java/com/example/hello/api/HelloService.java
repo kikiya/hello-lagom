@@ -54,9 +54,7 @@ public interface HelloService extends Service {
                 pathCall("/api/hello/:id", this::useGreeting),
                 pathCall("/api/hello/:userId/greetings", this::getGreetings),
                 pathCall("/api/hello/all/stuff", this::getAllGreetings)
-        )
-                .publishing(
-                topic("hello-events", this::greetingsTopic)
+        ).publishing(topic("hello-events", this::greetingsTopic)
 //                topic("hello-events", this::helloEvents)
                         // Kafka partitions messages, messages within the same partition will
                         // be delivered in order, to ensure that all messages for the same user

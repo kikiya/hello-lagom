@@ -61,7 +61,6 @@ public interface HelloCommand extends Jsonable {
 
     @JsonCreator
     public Hello(String name) {
-      System.out.println("********* name: "+name);
       this.name = Preconditions.checkNotNull(name, "name");
     }
   }

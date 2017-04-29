@@ -21,14 +21,11 @@ public class WhosThereSubscriber {
     @Inject
     public WhosThereSubscriber(HelloService helloService, WhosThereRepository repository) {
 
-        System.out.println("****************** i am subscribing");
-
         //#subscribe-to-topic
         helloService.greetingsTopic()
                 .subscribe() // <-- you get back a Subscriber instance
                 .atLeastOnce(Flow.fromFunction((GreetingMessage message) -> {
                     repository.addGuest(message.id, message.message);
-//                    repository.addGuest(message.id, message.message);
                     return Done.getInstance();
                 }));
 
