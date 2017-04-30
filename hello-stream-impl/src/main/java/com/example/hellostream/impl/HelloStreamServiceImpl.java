@@ -6,7 +6,7 @@ package com.example.hellostream.impl;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
-import com.example.hello.api.HelloService;
+import com.example.greeting.api.GreetingService;
 import com.example.hellostream.api.HelloStreamService;
 
 import javax.inject.Inject;
@@ -18,16 +18,16 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  */
 public class HelloStreamServiceImpl implements HelloStreamService {
 
-  private final HelloService helloService;
+  private final GreetingService greetingService;
 
   @Inject
-  public HelloStreamServiceImpl(HelloService helloService) {
-    this.helloService = helloService;
+  public HelloStreamServiceImpl(GreetingService greetingService) {
+    this.greetingService = greetingService;
   }
 
   @Override
   public ServiceCall<Source<String, NotUsed>, Source<String, NotUsed>> stream() {
     return hellos -> completedFuture(
-        hellos.mapAsync(8, name -> helloService.hello(name).invoke()));
+        hellos.mapAsync(8, name -> greetingService.hello(name).invoke()));
   }
 }

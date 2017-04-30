@@ -1,15 +1,15 @@
 /*
  * Copyright (C) 2016 Lightbend Inc. <http://www.lightbend.com>
  */
-package com.example.hello.impl;
+package com.example.greeting.impl;
 
 import akka.Done;
 import akka.NotUsed;
 import akka.japi.Pair;
-import com.example.hello.api.GreetingMessage;
-import com.example.hello.api.HelloService;
-import com.example.hello.impl.HelloCommand.Hello;
-import com.example.hello.impl.HelloCommand.UseGreetingMessage;
+import com.example.greeting.api.GreetingMessage;
+import com.example.greeting.api.GreetingService;
+import com.example.greeting.impl.GreetingCommand.Greeting;
+import com.example.greeting.impl.GreetingCommand.UseGreetingMessage;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.broker.Topic;
 import com.lightbend.lagom.javadsl.broker.TopicProducer;
@@ -27,29 +27,29 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of the HelloService.
+ * Implementation of the GreetingService.
  */
-public class HelloServiceImpl implements HelloService {
+public class GreetingServiceImpl implements GreetingService {
 
     private final PersistentEntityRegistry persistentEntityRegistry;
     private final CassandraSession db;
 
     @Inject
-    public HelloServiceImpl(PersistentEntityRegistry persistentEntityRegistry, ReadSide readSide, CassandraSession db) {
+    public GreetingServiceImpl(PersistentEntityRegistry persistentEntityRegistry, ReadSide readSide, CassandraSession db) {
         this.persistentEntityRegistry = persistentEntityRegistry;
         this.db = db;
 
-        persistentEntityRegistry.register(HelloEntity.class);
-        readSide.register(HelloEventProcessor.class);
+        persistentEntityRegistry.register(GreetingEntity.class);
+        readSide.register(GreetingEventProcessor.class);
     }
 
     @Override
     public ServiceCall<NotUsed, String> hello(String id) {
         return request -> {
             // Look up the hello world entity for the given ID.
-            PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloEntity.class, id);
-            // Ask the entity the Hello command.
-            return ref.ask(new Hello(id));
+            PersistentEntityRef<GreetingCommand> ref = persistentEntityRegistry.refFor(GreetingEntity.class, id);
+            // Ask the entity the Greeting command.
+            return ref.ask(new Greeting(id));
         };
     }
 
@@ -57,7 +57,7 @@ public class HelloServiceImpl implements HelloService {
     public ServiceCall<GreetingMessage, Done> useGreeting(String id) {
         return request -> {
             // Look up the hello world entity for the given ID.
-            PersistentEntityRef<HelloCommand> ref = persistentEntityRegistry.refFor(HelloEntity.class, id);
+            PersistentEntityRef<GreetingCommand> ref = persistentEntityRegistry.refFor(GreetingEntity.class, id);
             // Tell the entity to use the greeting message specified.
             return ref.ask(new UseGreetingMessage(request.id, request.message));
         };
@@ -88,25 +88,25 @@ public class HelloServiceImpl implements HelloService {
         };
     }
 
-    private Pair<GreetingMessage, Offset> convertEvent(Pair<HelloEvent, Offset> pair) {
+    private Pair<GreetingMessage, Offset> convertEvent(Pair<GreetingEvent, Offset> pair) {
         return new Pair<>(new GreetingMessage(
-                ((HelloEvent.GreetingMessageChanged)pair.first()).id,
-                ((HelloEvent.GreetingMessageChanged)pair.first()).message), pair.second());
+                ((GreetingEvent.GreetingMessageChanged) pair.first()).id,
+                ((GreetingEvent.GreetingMessageChanged) pair.first()).message), pair.second());
     }
 
     @Override
     public Topic<GreetingMessage> greetingsTopic() {
         return TopicProducer.singleStreamWithOffset(offset -> {
             return persistentEntityRegistry
-                    .eventStream(HelloEvent.TAG, offset)
+                    .eventStream(GreetingEvent.TAG, offset)
                     .map(this::convertEvent);
         });
     }
 
     @Override
-    public Topic<com.example.hello.api.HelloEvent> helloEvents() {
+    public Topic<com.example.greeting.api.GreetingEvent> helloEvents() {
         // We want to publish all the shards of the hello event
-        return TopicProducer.taggedStreamWithOffset(HelloEvent.SHARD_TAG.allTags(), (tag, offset) ->
+        return TopicProducer.taggedStreamWithOffset(GreetingEvent.SHARD_TAG.allTags(), (tag, offset) ->
 
                 // Load the event stream for the passed in shard tag
                 persistentEntityRegistry.eventStream(tag, offset).map(eventAndOffset -> {
@@ -115,11 +115,11 @@ public class HelloServiceImpl implements HelloService {
                     // Although these two events are currently identical, in future they may
                     // change and need to evolve separately, by separating them now we save
                     // a lot of potential trouble in future.
-                    com.example.hello.api.HelloEvent eventToPublish;
+                    com.example.greeting.api.GreetingEvent eventToPublish;
 
-                    if (eventAndOffset.first() instanceof HelloEvent.GreetingMessageChanged) {
-                        HelloEvent.GreetingMessageChanged messageChanged = (HelloEvent.GreetingMessageChanged) eventAndOffset.first();
-                        eventToPublish = new com.example.hello.api.HelloEvent.GreetingMessageChanged(
+                    if (eventAndOffset.first() instanceof GreetingEvent.GreetingMessageChanged) {
+                        GreetingEvent.GreetingMessageChanged messageChanged = (GreetingEvent.GreetingMessageChanged) eventAndOffset.first();
+                        eventToPublish = new com.example.greeting.api.GreetingEvent.GreetingMessageChanged(
                                 messageChanged.id, messageChanged.message
                         );
                     } else {

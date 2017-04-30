@@ -5,7 +5,7 @@ package com.example.hellostream.impl;
 
 import com.google.inject.AbstractModule;
 import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
-import com.example.hello.api.HelloService;
+import com.example.greeting.api.GreetingService;
 import com.example.hellostream.api.HelloStreamService;
 
 /**
@@ -16,7 +16,7 @@ public class HelloStreamModule extends AbstractModule implements ServiceGuiceSup
   protected void configure() {
     // Bind the HelloStreamService service
     bindServices(serviceBinding(HelloStreamService.class, HelloStreamServiceImpl.class));
-    // Bind the HelloService client
-    bindClient(HelloService.class);
+    // Bind the GreetingService client
+    bindClient(GreetingService.class);
   }
 }
