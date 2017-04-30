@@ -1,27 +1,27 @@
 /*
  * Copyright (C) 2016 Lightbend Inc. <http://www.lightbend.com>
  */
-package com.example.hellostream.impl;
+package com.example.greetingstream.impl;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
+import com.example.greetingstream.api.GreetingStreamService;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.example.greeting.api.GreetingService;
-import com.example.hellostream.api.HelloStreamService;
 
 import javax.inject.Inject;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
- * Implementation of the HelloStreamService.
+ * Implementation of the GreetingStreamService.
  */
-public class HelloStreamServiceImpl implements HelloStreamService {
+public class GreetingStreamServiceImpl implements GreetingStreamService {
 
   private final GreetingService greetingService;
 
   @Inject
-  public HelloStreamServiceImpl(GreetingService greetingService) {
+  public GreetingStreamServiceImpl(GreetingService greetingService) {
     this.greetingService = greetingService;
   }
 

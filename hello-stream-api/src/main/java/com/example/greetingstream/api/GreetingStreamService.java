@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 Lightbend Inc. <http://www.lightbend.com>
  */
-package com.example.hellostream.api;
+package com.example.greetingstream.api;
 
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.namedCall;
@@ -16,9 +16,9 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
  * The Hello stream interface.
  * <p>
  * This describes everything that Lagom needs to know about how to serve and
- * consume the HelloStreamService service.
+ * consume the GreetingStreamService service.
  */
-public interface HelloStreamService extends Service {
+public interface GreetingStreamService extends Service {
 
   ServiceCall<Source<String, NotUsed>, Source<String, NotUsed>> stream();
 
