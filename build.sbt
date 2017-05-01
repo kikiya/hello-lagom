@@ -7,11 +7,9 @@ scalaVersion in ThisBuild := "2.11.8"
 lagomCassandraCleanOnStart in ThisBuild := true
 
 lazy val `hello` = (project in file("."))
-//  .aggregate(`hello-api`, `hello-impl`, `hello-stream-api`, `hello-stream-impl`)
-//  .aggregate(`hello-api`, `hello-impl`, `hello-stream-api`, `hello-stream-impl`)
-  .aggregate(`hello-api`, `hello-impl`, `hello-stream-api`, `hello-stream-impl`, `whosthere-api`, `whosthere-impl`)
+  .aggregate(`greeting-api`, `greeting-impl`, `hello-stream-api`, `hello-stream-impl`, `whosthere-api`, `whosthere-impl`)
 
-lazy val `hello-api` = (project in file("hello-api"))
+lazy val `greeting-api` = (project in file("greeting-api"))
   .settings(common: _*)
   .settings(
     libraryDependencies ++= Seq(
@@ -20,7 +18,7 @@ lazy val `hello-api` = (project in file("hello-api"))
     )
   )
 
-lazy val `hello-impl` = (project in file("hello-impl"))
+lazy val `greeting-impl` = (project in file("greeting-impl"))
   .enablePlugins(LagomJava)
   .settings(common: _*)
   .settings(
@@ -32,7 +30,7 @@ lazy val `hello-impl` = (project in file("hello-impl"))
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(`hello-api`)
+  .dependsOn(`greeting-api`)
 
 lazy val `hello-stream-api` = (project in file("hello-stream-api"))
   .settings(common: _*)
@@ -50,7 +48,7 @@ lazy val `hello-stream-impl` = (project in file("hello-stream-impl"))
       lagomJavadslTestKit
     )
   )
-  .dependsOn(`hello-stream-api`, `hello-api`)
+  .dependsOn(`hello-stream-api`, `greeting-api`)
 
 lazy val `whosthere-api` = (project in file("whosthere-api"))
   .settings(common: _*)
@@ -73,7 +71,7 @@ lazy val `whosthere-impl` = (project in file("whosthere-impl"))
     )
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(`whosthere-api`, `hello-api`)
+  .dependsOn(`whosthere-api`, `greeting-api`)
 
 
 val lombok = "org.projectlombok" % "lombok" % "1.16.10"
