@@ -42,6 +42,7 @@ public interface GreetingService extends Service {
 
     Topic<GreetingMessage> greetingsTopic();
 
+    // todo - change from hello to greeting.
     @Override
     default Descriptor descriptor() {
         // @formatter:off
