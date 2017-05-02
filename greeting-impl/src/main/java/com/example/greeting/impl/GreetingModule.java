@@ -13,6 +13,6 @@ import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
 public class GreetingModule extends AbstractModule implements ServiceGuiceSupport {
     @Override
     protected void configure() {
-        bindServices(serviceBinding(GreetingService.class, GreetingServiceImpl.class));
+        bindService(GreetingService.class, GreetingServiceImpl.class);
     }
 }
