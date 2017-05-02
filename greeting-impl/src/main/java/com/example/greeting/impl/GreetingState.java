@@ -17,13 +17,11 @@ import lombok.Value;
 @JsonDeserialize
 public final class GreetingState implements CompressedJsonable {
 
-    public final String id;
     public final String message;
     public final String timestamp;
 
     @JsonCreator
-    public GreetingState(String id, String message, String timestamp) {
-        this.id = Preconditions.checkNotNull(id, "id");
+    public GreetingState(String message, String timestamp) {
         this.message = Preconditions.checkNotNull(message, "message");
         this.timestamp = Preconditions.checkNotNull(timestamp, "timestamp");
     }

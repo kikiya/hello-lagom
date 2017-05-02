@@ -3,22 +3,23 @@
  */
 package com.example.greeting.impl;
 
-import akka.Done;
-import com.example.greeting.impl.GreetingCommand.Greeting;
-import com.example.greeting.impl.GreetingCommand.UseGreetingMessage;
-import com.example.greeting.impl.GreetingEvent.GreetingMessageChanged;
-import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
+
+import akka.Done;
+import com.example.greeting.impl.GreetingCommand.Hello;
+import com.example.greeting.impl.GreetingCommand.UseGreetingMessage;
+import com.example.greeting.impl.GreetingEvent.GreetingMessageChanged;
+
 /**
  * This is an event sourced entity. It has a state, {@link GreetingState}, which
- * stores what the greeting should be (eg, "Greeting").
+ * stores what the greeting should be (eg, "Hello").
  * <p>
  * Event sourced entities are interacted with by sending them commands. This
  * entity supports two commands, a {@link UseGreetingMessage} command, which is
- * used to change the greeting, and a {@link GreetingCommand.Greeting} command, which is a read
+ * used to change the greeting, and a {@link Hello} command, which is a read
  * only command which returns a greeting to the name specified by the command.
  * <p>
  * Commands get translated to events, and it's the events that get persisted by
@@ -40,47 +41,48 @@ public class GreetingEntity extends PersistentEntity<GreetingCommand, GreetingEv
     @Override
     public Behavior initialBehavior(Optional<GreetingState> snapshotState) {
 
-        /*
-         * Behaviour is defined using a behaviour builder. The behaviour builder
-         * starts with a state, if this entity supports snapshotting (an
-         * optimisation that allows the state itself to be persisted to combine many
-         * events into one), then the passed in snapshotState may have a value that
-         * can be used.
-         *
-         * Otherwise, the default state is to use the Greeting greeting.
-         */
-        @SuppressWarnings("unchecked")
+    /*
+     * Behaviour is defined using a behaviour builder. The behaviour builder
+     * starts with a state, if this entity supports snapshotting (an
+     * optimisation that allows the state itself to be persisted to combine many
+     * events into one), then the passed in snapshotState may have a value that
+     * can be used.
+     *
+     * Otherwise, the default state is to use the Hello greeting.
+     */
         BehaviorBuilder b = newBehaviorBuilder(
-                snapshotState.orElse(new GreetingState("0", "Greeting", LocalDateTime.now().toString())));
+                snapshotState.orElse(new GreetingState("Hello", LocalDateTime.now().toString())));
 
-        /*
-         * Command handler for the UseGreetingMessage command.
-         */
-        b.setCommandHandler(UseGreetingMessage.class, (cmd, ctx) -> {
-            return ctx.thenPersist(new GreetingMessageChanged(cmd.id, cmd.message),
-                    // Then once the event is successfully persisted, we respond with done.
-                    evt -> ctx.reply(Done.getInstance()));
-        });
-        /*
-         * Event handler for the GreetingMessageChanged event.
-         */
+    /*
+     * Command handler for the UseGreetingMessage command.
+     */
+        b.setCommandHandler(UseGreetingMessage.class, (cmd, ctx) ->
+                // In response to this command, we want to first persist it as a
+                // GreetingMessageChanged event
+                ctx.thenPersist(new GreetingMessageChanged(entityId(), cmd.message),
+                        // Then once the event is successfully persisted, we respond with done.
+                        evt -> ctx.reply(Done.getInstance())));
+
+    /*
+     * Event handler for the GreetingMessageChanged event.
+     */
         b.setEventHandler(GreetingMessageChanged.class,
                 // We simply update the current state to use the greeting message from
                 // the event.
-                evt -> new GreetingState(evt.id, evt.message, LocalDateTime.now().toString()));
+                evt -> new GreetingState(evt.message, LocalDateTime.now().toString()));
 
-        /*
-         * Command handler for the Greeting command.
-         */
-        b.setReadOnlyCommandHandler(Greeting.class,
+    /*
+     * Command handler for the Hello command.
+     */
+        b.setReadOnlyCommandHandler(Hello.class,
                 // Get the greeting from the current state, and prepend it to the name
                 // that we're sending
                 // a greeting to, and reply with that message.
                 (cmd, ctx) -> ctx.reply(state().message + ", " + cmd.name + "!"));
 
-        /*
-         * We've defined all our behaviour, so build and return it.
-         */
+    /*
+     * We've defined all our behaviour, so build and return it.
+     */
         return b.build();
     }
 

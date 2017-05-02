@@ -31,12 +31,10 @@ public interface GreetingCommand extends Jsonable {
     @Value
     @JsonDeserialize
     final class UseGreetingMessage implements GreetingCommand, CompressedJsonable, PersistentEntity.ReplyType<Done> {
-        public final String id;
         public final String message;
 
         @JsonCreator
-        UseGreetingMessage(String id, String message) {
-            this.id = Preconditions.checkNotNull(id, "id");
+        public UseGreetingMessage(String message) {
             this.message = Preconditions.checkNotNull(message, "message");
         }
     }
@@ -50,11 +48,11 @@ public interface GreetingCommand extends Jsonable {
     @SuppressWarnings("serial")
     @Value
     @JsonDeserialize
-    final class Greeting implements GreetingCommand, PersistentEntity.ReplyType<String> {
+    final class Hello implements GreetingCommand, PersistentEntity.ReplyType<String> {
         public final String name;
 
         @JsonCreator
-        Greeting(String name) {
+        public Hello(String name) {
             this.name = Preconditions.checkNotNull(name, "name");
         }
     }
