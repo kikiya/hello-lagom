@@ -15,7 +15,7 @@ public class GreetingStreamModule extends AbstractModule implements ServiceGuice
   @Override
   protected void configure() {
     // Bind the GreetingStreamService service
-    bindServices(serviceBinding(GreetingStreamService.class, GreetingStreamServiceImpl.class));
+    bindService(GreetingStreamService.class, GreetingStreamServiceImpl.class);
     // Bind the GreetingService client
     bindClient(GreetingService.class);
   }
