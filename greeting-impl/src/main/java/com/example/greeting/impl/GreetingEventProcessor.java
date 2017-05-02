@@ -45,7 +45,7 @@ public class GreetingEventProcessor extends ReadSideProcessor<GreetingEvent> {
 
     @Override
     public PSequence<AggregateEventTag<GreetingEvent>> aggregateTags() {
-        return TreePVector.singleton(GreetingEvent.TAG);
+        return GreetingEvent.TAG.allTags();
     }
 
     private CompletionStage<Done> prepareCreateTables() {
@@ -65,8 +65,9 @@ public class GreetingEventProcessor extends ReadSideProcessor<GreetingEvent> {
     }
 
     private CompletionStage<List<BoundStatement>> processGreetingMessageChanged(GreetingEvent.GreetingMessageChanged event) {
+        System.out.println("********************** EventProcessor like: "+event);
         BoundStatement bindWriteGreetings = writeGreetings.bind();
-        bindWriteGreetings.setString("id", event.id);
+        bindWriteGreetings.setString("id", event.name);
         bindWriteGreetings.setString("message", event.message);
         return completedStatement(bindWriteGreetings);
     }

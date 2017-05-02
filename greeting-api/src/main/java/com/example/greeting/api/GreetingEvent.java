@@ -16,26 +16,23 @@ import lombok.Value;
 })
 public interface GreetingEvent {
 
-    String getId();
+    String getName();
 
     @Value
     final class GreetingMessageChanged implements GreetingEvent {
-
-        public final String id;
+        public final String name;
         public final String message;
 
         @JsonCreator
         public GreetingMessageChanged(String name, String message) {
-            this.id = Preconditions.checkNotNull(name, "id");
+            this.name = Preconditions.checkNotNull(name, "name");
             this.message = Preconditions.checkNotNull(message, "message");
         }
 
         @Override
-        public String getId() {
-            return this.id;
+        public String getName() {
+            return name;
         }
     }
-
-
 }
 

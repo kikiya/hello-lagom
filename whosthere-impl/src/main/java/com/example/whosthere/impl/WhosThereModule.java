@@ -13,7 +13,7 @@ public class WhosThereModule extends AbstractModule implements ServiceGuiceSuppo
     @Override
     protected void configure() {
         // Bind the HelloStreamService service
-        bindServices(serviceBinding(WhosThereService.class, WhosThereServiceImpl.class));
+        bindService(WhosThereService.class, WhosThereServiceImpl.class);
         // Bind the GreetingService client
         bindClient(GreetingService.class);
         // Bind the subscriber eagerly to ensure it starts up

@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventShards;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
+import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
 import com.lightbend.lagom.serialization.Jsonable;
 import lombok.Value;
 
@@ -18,23 +19,15 @@ import lombok.Value;
  * By convention, the events should be inner classes of the interface, which
  * makes it simple to get a complete picture of what events an entity has.
  */
-public interface GreetingEvent extends AggregateEvent<GreetingEvent>, Jsonable {
+public interface GreetingEvent extends Jsonable, AggregateEvent<GreetingEvent> {
 
-//    AggregateEventShards<GreetingEvent> TAG = AggregateEventTag.sharded(GreetingEvent.class, 4);
-
-//    @Override
-//    default AggregateEventTagger<GreetingEvent> aggregateTag() {
-//        return TAG;
-//    }
-
-    AggregateEventTag<GreetingEvent> TAG = AggregateEventTag.of(GreetingEvent.class);
-
-    AggregateEventShards<GreetingEvent> SHARD_TAG = AggregateEventTag.sharded(GreetingEvent.class, 4);
-
-    @Override
-    default AggregateEventTag<GreetingEvent> aggregateTag() {
-        return TAG;
-    }
+    /**
+     * Tags are used for getting and publishing streams of events. Each event
+     * will have this tag, and in this case, we are partitioning the tags into
+     * 4 shards, which means we can have 4 concurrent processors/publishers of
+     * events.
+     */
+    AggregateEventShards<GreetingEvent> TAG = AggregateEventTag.sharded(GreetingEvent.class, 4);
 
     /**
      * An event that represents a change in greeting message.
@@ -43,13 +36,18 @@ public interface GreetingEvent extends AggregateEvent<GreetingEvent>, Jsonable {
     @Value
     @JsonDeserialize
     final class GreetingMessageChanged implements GreetingEvent {
-        public final String id;
+        public final String name;
         public final String message;
 
         @JsonCreator
-        public GreetingMessageChanged(String id, String message) {
-            this.id = Preconditions.checkNotNull(id, "id");
+        public GreetingMessageChanged(String name, String message) {
+            this.name = Preconditions.checkNotNull(name, "name");
             this.message = Preconditions.checkNotNull(message, "message");
         }
+    }
+
+    @Override
+    default AggregateEventTagger<GreetingEvent> aggregateTag() {
+        return TAG;
     }
 }
