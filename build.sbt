@@ -6,8 +6,14 @@ scalaVersion in ThisBuild := "2.11.8"
 
 lagomCassandraCleanOnStart in ThisBuild := true
 
+val lombok = "org.projectlombok" % "lombok" % "1.16.10"
+
+def common = Seq(
+  javacOptions in compile += "-parameters"
+)
+
 lazy val `hello` = (project in file("."))
-  .aggregate(`greeting-api`, `greeting-impl`, `greeting-stream-api`, `greeting-stream-impl`, `whosthere-api`, `whosthere-impl`)
+  .aggregate(`greeting-api`, `greeting-impl`, `whosthere-api`, `whosthere-impl`)
 
 lazy val `greeting-api` = (project in file("greeting-api"))
   .settings(common: _*)
@@ -31,24 +37,6 @@ lazy val `greeting-impl` = (project in file("greeting-impl"))
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`greeting-api`)
-
-lazy val `greeting-stream-api` = (project in file("greeting-stream-api"))
-  .settings(common: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      lagomJavadslApi
-    )
-  )
-
-lazy val `greeting-stream-impl` = (project in file("greeting-stream-impl"))
-  .enablePlugins(LagomJava)
-  .settings(common: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      lagomJavadslTestKit
-    )
-  )
-  .dependsOn(`greeting-stream-api`, `greeting-api`)
 
 lazy val `whosthere-api` = (project in file("whosthere-api"))
   .settings(common: _*)
@@ -74,9 +62,4 @@ lazy val `whosthere-impl` = (project in file("whosthere-impl"))
   .dependsOn(`whosthere-api`, `greeting-api`)
 
 
-val lombok = "org.projectlombok" % "lombok" % "1.16.10"
-
-def common = Seq(
-  javacOptions in compile += "-parameters"
-)
 
